@@ -30,6 +30,15 @@ dari mana isinya berasal dan dasar lisensinya, sesuai catatan outline Fase 1
   untuk memastikan kata yang dipilih memang lazim di level N5, bukan untuk
   menyalin teksnya.
 
+## Tema kosakata (Fase 3)
+
+Setiap kata memiliki field `theme` yang dipetakan manual mengikuti arti
+kata: orang, tanya, posisi, tempat, alam, makanan, waktu, benda, sifat,
+kegiatan. Dataset ini tidak memiliki kata bilangan dan hanya sedikit kata
+keluarga, jadi tema mengikuti isi dataset yang nyata, bukan label outline.
+Tema saat ini hanya hidup di dataset lokal; tabel `cards` Supabase belum
+memiliki kolom tema.
+
 ## Aturan ke depan
 
 - Jangan menyalin contoh kalimat, definisi panjang, atau audio dari situs
