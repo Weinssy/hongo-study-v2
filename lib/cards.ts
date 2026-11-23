@@ -1,5 +1,5 @@
 import { HIRAGANA, KATAKANA } from "@/data/kana";
-import { VOCAB_N5 } from "@/data/vocab";
+import { VOCAB_N5, type VocabTheme } from "@/data/vocab";
 
 export type CardType = "kana" | "vocab";
 export type KanaScript = "hiragana" | "katakana";
@@ -18,6 +18,9 @@ export interface Card {
   example?: string;
   exampleId?: string;
   script?: KanaScript;
+  /** Tema kosakata (Fase 3). Hanya ada di dataset lokal; tabel Supabase
+   *  `cards` belum punya kolom tema (lihat laporan Fase 3). */
+  theme?: VocabTheme;
   sortOrder: number;
 }
 
@@ -49,6 +52,7 @@ export const VOCAB_CARDS: Card[] = VOCAB_N5.map((v, i) => ({
   romaji: v.romaji,
   example: v.example,
   exampleId: v.exampleId,
+  theme: v.theme,
   sortOrder: i,
 }));
 
