@@ -32,6 +32,8 @@ export function SakugaButton({
   buttonRef?: React.Ref<SakugaButtonHandle>;
 }) {
   const elRef = useRef<SakugaButtonElement | null>(null);
+  const onClickRef = useRef(onClick);
+  onClickRef.current = onClick;
 
   useImperativeHandle(buttonRef, () => ({
     done: (hold = 1.8) => elRef.current?.done?.(hold),
@@ -40,21 +42,27 @@ export function SakugaButton({
 
   useEffect(() => {
     const el = elRef.current;
-    if (!el || !onClick) return;
+    if (!el) return;
     const handleClick = () => {
       if (el.disabled) return;
-      onClick();
+      onClickRef.current?.();
     };
     el.addEventListener("click", handleClick);
     return () => el.removeEventListener("click", handleClick);
-  }, [onClick]);
+  }, []);
+
+  useEffect(() => {
+    const el = elRef.current;
+    if (!el) return;
+    if (disabled) el.setAttribute("disabled", "");
+    else el.removeAttribute("disabled");
+  }, [disabled]);
 
   return (
     <sakuga-button
       ref={elRef}
       variant={variant === "secondary" ? "secondary" : undefined}
       type={type}
-      disabled={disabled || undefined}
       className={className}
     >
       {children}
@@ -123,33 +131,38 @@ export function SakugaTabs({
   className?: string;
 }) {
   const elRef = useRef<SakugaTabsElement | null>(null);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
 
   useEffect(() => {
     const el = elRef.current;
     if (!el) return;
     const handler = (event: Event) => {
       const detail = (event as CustomEvent<{ index: number; value: string }>).detail;
-      if (detail) onChange(detail.index, detail.value);
+      if (detail) onChangeRef.current(detail.index, detail.value);
     };
     el.addEventListener("change", handler);
     return () => el.removeEventListener("change", handler);
-  }, [onChange]);
+  }, []);
 
   useEffect(() => {
-    const el = elRef.current;
-    if (!el) return;
-    if ("selected" in el && typeof el.selected === "number" && el.selected !== selected) {
-      el.selected = selected;
+    const apply = () => {
+      const el = elRef.current;
+      if (!el) return;
+      if (typeof customElements !== "undefined" && customElements.get("sakuga-tabs")) {
+        if (el.selected !== selected) el.selected = selected;
+      } else {
+        el.setAttribute("selected", String(selected));
+      }
+    };
+    apply();
+    if (typeof customElements !== "undefined" && !customElements.get("sakuga-tabs")) {
+      void customElements.whenDefined("sakuga-tabs").then(apply);
     }
   }, [selected]);
 
   return (
-    <sakuga-tabs
-      ref={elRef}
-      label={label}
-      selected={String(selected)}
-      className={className}
-    >
+    <sakuga-tabs ref={elRef} label={label} className={className}>
       {options.map((opt) => (
         <option key={opt.value} value={opt.value}>
           {opt.label}
@@ -175,33 +188,37 @@ export function SakugaRadio({
   className?: string;
 }) {
   const elRef = useRef<SakugaRadioElement | null>(null);
+  const onChangeRef = useRef(onChange);
+  onChangeRef.current = onChange;
 
   useEffect(() => {
     const el = elRef.current;
     if (!el) return;
     const handler = () => {
-      onChange(el.value);
+      onChangeRef.current(el.value);
     };
     el.addEventListener("change", handler);
     return () => el.removeEventListener("change", handler);
-  }, [onChange]);
+  }, []);
 
   useEffect(() => {
-    const el = elRef.current;
-    if (!el) return;
-    if (el.value !== value) {
-      el.value = value;
+    const apply = () => {
+      const el = elRef.current;
+      if (!el) return;
+      if (typeof customElements !== "undefined" && customElements.get("sakuga-radio")) {
+        if (el.value !== value) el.value = value;
+      } else {
+        el.setAttribute("value", value);
+      }
+    };
+    apply();
+    if (typeof customElements !== "undefined" && !customElements.get("sakuga-radio")) {
+      void customElements.whenDefined("sakuga-radio").then(apply);
     }
   }, [value]);
 
   return (
-    <sakuga-radio
-      ref={elRef}
-      label={label}
-      name={name}
-      value={value}
-      className={className}
-    >
+    <sakuga-radio ref={elRef} label={label} name={name} className={className}>
       {options.map((opt) => (
         <option key={opt.value} value={opt.value} selected={opt.value === value}>
           {opt.label}
@@ -231,11 +248,13 @@ export function SakugaInput({
   onValueChange: (value: string) => void;
 }) {
   const elRef = useRef<SakugaInputElement | null>(null);
+  const onValueChangeRef = useRef(onValueChange);
+  onValueChangeRef.current = onValueChange;
 
   useEffect(() => {
     const el = elRef.current;
     if (!el) return;
-    const handleInput = () => onValueChange(el.value);
+    const handleInput = () => onValueChangeRef.current(el.value);
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Enter" && !event.shiftKey) {
         event.preventDefault();
@@ -250,24 +269,38 @@ export function SakugaInput({
       el.removeEventListener("change", handleInput);
       el.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onValueChange]);
+  }, []);
+
+  useEffect(() => {
+    const apply = () => {
+      const el = elRef.current;
+      if (!el) return;
+      if (typeof customElements !== "undefined" && customElements.get("sakuga-input")) {
+        if (el.value !== value) el.value = value;
+      } else {
+        el.setAttribute("value", value);
+      }
+    };
+    apply();
+    if (typeof customElements !== "undefined" && !customElements.get("sakuga-input")) {
+      void customElements.whenDefined("sakuga-input").then(apply);
+    }
+  }, [value]);
 
   useEffect(() => {
     const el = elRef.current;
-    if (el && el.value !== value) {
-      el.value = value;
-    }
-  }, [value]);
+    if (!el) return;
+    if (disabled) el.setAttribute("disabled", "");
+    else el.removeAttribute("disabled");
+  }, [disabled]);
 
   return (
     <sakuga-input
       ref={elRef}
       id={id}
       label={label}
-      value={value}
       placeholder={placeholder}
       autocomplete={autoComplete}
-      disabled={disabled || undefined}
       className={className}
     />
   );
