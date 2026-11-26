@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState, type FormEvent } from "react";
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import { loadActivity, loadProgress, type ActivityEntry, type ProgressMap } from "@/lib/progress-store";
 import {
@@ -17,6 +17,13 @@ import {
   evaluateBadges,
 } from "@/lib/progress-stats";
 import { useAuth } from "@/lib/auth";
+import {
+  SakugaButton,
+  SakugaTabs,
+  SakugaTooltip,
+  type SakugaButtonHandle,
+} from "@/app/components/SakugaControls";
+import { showSakugaToast } from "@/app/components/SakugaToastHost";
 
 type Phase = "loading" | "error" | "ready";
 
@@ -30,6 +37,7 @@ export default function DashboardClient() {
   const [range, setRange] = useState<7 | 30>(7);
   const [targetInput, setTargetInput] = useState("10");
   const [targetSaved, setTargetSaved] = useState(false);
+  const saveBtnRef = useRef<SakugaButtonHandle | null>(null);
 
   const load = useCallback(async () => {
     if (authLoading) return;
@@ -59,6 +67,8 @@ export default function DashboardClient() {
     saveSettings({ dailyTarget: clamped });
     setTargetInput(String(clamped));
     setTargetSaved(true);
+    saveBtnRef.current?.done();
+    showSakugaToast("Target tersimpan!");
   }
 
   if (phase === "loading") {
@@ -78,9 +88,9 @@ export default function DashboardClient() {
           <p className="form-error" role="alert">
             {errorMsg}
           </p>
-          <button type="button" className="btn btn-primary" onClick={() => void load()}>
+          <SakugaButton onClick={() => void load()}>
             Coba lagi
-          </button>
+          </SakugaButton>
         </div>
       </>
     );
@@ -153,23 +163,16 @@ export default function DashboardClient() {
           </div>
 
           <h2>Aktivitas {range} hari terakhir</h2>
-          <div className="range-switch" role="group" aria-label="Rentang grafik aktivitas">
-            <button
-              type="button"
-              className={range === 7 ? "mode-btn active" : "mode-btn"}
-              aria-pressed={range === 7}
-              onClick={() => setRange(7)}
-            >
-              7 hari
-            </button>
-            <button
-              type="button"
-              className={range === 30 ? "mode-btn active" : "mode-btn"}
-              aria-pressed={range === 30}
-              onClick={() => setRange(30)}
-            >
-              30 hari
-            </button>
+          <div className="sakuga-tabs-row">
+            <SakugaTabs
+              label="Rentang grafik aktivitas"
+              selected={range === 7 ? 0 : 1}
+              options={[
+                { value: "7", label: "7 hari" },
+                { value: "30", label: "30 hari" },
+              ]}
+              onChange={(_, val) => setRange(val === "30" ? 30 : 7)}
+            />
           </div>
           <div className="activity-chart" role="img" aria-label={`Grafik jumlah penilaian per hari selama ${range} hari terakhir`}>
             {series.map((s) => (
@@ -186,7 +189,13 @@ export default function DashboardClient() {
             Hari ini: {todayCount} penilaian dari target {dailyTarget} kartu per sesi.
           </p>
 
-          <h2>Lencana</h2>
+          <div className="sakuga-heading-row">
+            <h2>Lencana</h2>
+            <SakugaTooltip
+              label="Info penguasaan kartu"
+              text="Kartu dihitung dikuasai saat interval SM-2 mencapai minimal 21 hari."
+            />
+          </div>
           <div className="badge-grid">
             {badges.map((b) => (
               <div key={b.id} className={b.earned ? "badge-card earned" : "badge-card"}>
@@ -216,9 +225,11 @@ export default function DashboardClient() {
               }}
             />
           </div>
-          <button type="submit" className="btn btn-primary">
-            Simpan target
-          </button>
+          <div>
+            <SakugaButton type="submit" buttonRef={saveBtnRef}>
+              Simpan target
+            </SakugaButton>
+          </div>
           {targetSaved ? (
             <p className="form-notice" role="status">
               Target harian tersimpan: {dailyTarget} kartu per sesi.

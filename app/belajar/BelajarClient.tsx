@@ -15,6 +15,12 @@ import {
 import { loadProgress, saveReview, type ProgressMap } from "@/lib/progress-store";
 import { loadSettings, todayLocal } from "@/lib/local-store";
 import { useAuth } from "@/lib/auth";
+import {
+  SakugaButton,
+  SakugaProgress,
+  SakugaTooltip,
+} from "@/app/components/SakugaControls";
+import { showSakugaToast } from "@/app/components/SakugaToastHost";
 
 type Phase = "loading" | "error" | "empty" | "studying" | "done";
 
@@ -102,6 +108,7 @@ export default function BelajarClient() {
       setFlipped(false);
       if (index + 1 >= queue.length) {
         setPhase("done");
+        showSakugaToast("Sesi selesai!");
       } else {
         setIndex(index + 1);
       }
@@ -130,9 +137,9 @@ export default function BelajarClient() {
           <p className="form-error" role="alert">
             {errorMsg}
           </p>
-          <button type="button" className="btn btn-primary" onClick={() => void startSession()}>
+          <SakugaButton onClick={() => void startSession()}>
             Coba lagi
-          </button>
+          </SakugaButton>
         </div>
       </>
     );
@@ -162,103 +169,115 @@ export default function BelajarClient() {
     );
   }
 
-  if (phase === "done") {
-    return (
-      <>
-        <h1>Sesi selesai</h1>
+  const progressRatio =
+    queue.length > 0 ? (phase === "done" ? 1 : reviewed / queue.length) : 0;
+
+  return (
+    <>
+      <div className="sakuga-heading-row">
+        <h1>{phase === "done" ? "Sesi selesai" : "Sesi Belajar"}</h1>
+        <SakugaTooltip
+          label="Cara kerja jadwal SM-2"
+          text="Penilaianmu mengatur jadwal muncul kartu lewat SM-2 tepat sebelum lupa."
+        />
+      </div>
+
+      {phase === "studying" ? (
+        <p className="lead">
+          {user
+            ? "Kamu masuk sebagai pengguna terdaftar: progres sesi ini tersimpan ke akunmu."
+            : "Mode tamu: progres sesi ini tersimpan di perangkat ini. Masuk agar progresmu tersimpan ke akun."}
+        </p>
+      ) : null}
+
+      {queue.length > 0 ? (
+        <div className="sakuga-progress-wrap">
+          <SakugaProgress
+            value={progressRatio}
+            label={`Progres sesi belajar: ${reviewed} dari ${queue.length} kartu`}
+            doneLabel="Selesai ✓"
+          />
+          {phase === "studying" ? (
+            <p className="session-progress-caption">
+              Kartu {index + 1} dari {queue.length}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
+
+      {phase === "done" ? (
         <div className="panel">
           <p>
             Kamu menilai <strong>{reviewed} kartu</strong> pada sesi ini.
             Jadwal ulangan tiap kartu sudah diperbarui mengikuti penilaianmu.
           </p>
-          <p className="session-actions">
-            <button type="button" className="btn btn-primary" onClick={() => void startSession()}>
+          <div className="session-actions">
+            <SakugaButton onClick={() => void startSession()}>
               Periksa lagi kartu jatuh tempo
-            </button>
+            </SakugaButton>
             <Link href="/kartu" className="btn btn-ghost">
               Lihat daftar kartu
             </Link>
+          </div>
+        </div>
+      ) : current ? (
+        <>
+          <div className="study-card">
+            <span className="study-card-kind">
+              {current.type === "kana"
+                ? current.script === "hiragana"
+                  ? "Hiragana"
+                  : "Katakana"
+                : "Kosakata N5"}
+            </span>
+            <span className="study-card-front">{current.front}</span>
+            {flipped ? (
+              <span className="study-card-back">
+                <span className="study-card-romaji">{current.romaji}</span>
+                {current.type === "vocab" ? (
+                  <span className="study-card-meaning">{current.back}</span>
+                ) : null}
+                {current.example ? (
+                  <span className="study-card-example">
+                    {current.example} ({current.exampleId})
+                  </span>
+                ) : null}
+              </span>
+            ) : (
+              <SakugaButton onClick={() => setFlipped(true)}>
+                Tampilkan jawaban
+              </SakugaButton>
+            )}
+          </div>
+
+          {flipped ? (
+            <div className="grade-grid" role="group" aria-label="Nilai ingatanmu untuk kartu ini">
+              {GRADE_ORDER.map((grade) => (
+                <button
+                  key={grade}
+                  type="button"
+                  className={`grade-btn grade-${grade}`}
+                  onClick={() => void handleGrade(grade)}
+                >
+                  <span className="grade-label">{GRADE_LABELS[grade]}</span>
+                  <span className="grade-interval">
+                    {intervalPreview
+                      ? `muncul lagi ${intervalPreview.get(grade)} hari lagi`
+                      : ""}
+                  </span>
+                </button>
+              ))}
+            </div>
+          ) : null}
+
+          <p className="session-note">
+            Satu sesi memuat paling banyak {dailyTarget} kartu mengikuti target
+            harianmu yang tersimpan di perangkat ini: kartu jatuh tempo lebih
+            dulu, lalu kartu baru. Jadwal dihitung dengan algoritma SM-2 dari
+            penilaianmu sendiri.
           </p>
-        </div>
-      </>
-    );
-  }
-
-  if (!current) return null;
-
-  return (
-    <>
-      <h1>Sesi Belajar</h1>
-      <p className="lead">
-        {user
-          ? "Kamu masuk sebagai pengguna terdaftar: progres sesi ini tersimpan ke akunmu."
-          : "Mode tamu: progres sesi ini tersimpan di perangkat ini. Masuk agar progresmu tersimpan ke akun."}
-      </p>
-
-      <div className="session-progress" aria-label={`Kartu ${index + 1} dari ${queue.length}`}>
-        <div
-          className="session-progress-bar"
-          style={{ width: `${(index / queue.length) * 100}%` }}
-        />
-        <span className="session-progress-text">
-          Kartu {index + 1} dari {queue.length}
-        </span>
-      </div>
-
-      <div className="study-card">
-        <span className="study-card-kind">
-          {current.type === "kana"
-            ? current.script === "hiragana"
-              ? "Hiragana"
-              : "Katakana"
-            : "Kosakata N5"}
-        </span>
-        <span className="study-card-front">{current.front}</span>
-        {flipped ? (
-          <span className="study-card-back">
-            <span className="study-card-romaji">{current.romaji}</span>
-            {current.type === "vocab" ? (
-              <span className="study-card-meaning">{current.back}</span>
-            ) : null}
-            {current.example ? (
-              <span className="study-card-example">
-                {current.example} ({current.exampleId})
-              </span>
-            ) : null}
-          </span>
-        ) : (
-          <button type="button" className="btn btn-primary" onClick={() => setFlipped(true)}>
-            Tampilkan jawaban
-          </button>
-        )}
-      </div>
-
-      {flipped ? (
-        <div className="grade-grid" role="group" aria-label="Nilai ingatanmu untuk kartu ini">
-          {GRADE_ORDER.map((grade) => (
-            <button
-              key={grade}
-              type="button"
-              className={`grade-btn grade-${grade}`}
-              onClick={() => void handleGrade(grade)}
-            >
-              <span className="grade-label">{GRADE_LABELS[grade]}</span>
-              <span className="grade-interval">
-                {intervalPreview
-                  ? `muncul lagi ${intervalPreview.get(grade)} hari lagi`
-                  : ""}
-              </span>
-            </button>
-          ))}
-        </div>
+        </>
       ) : null}
-
-      <p className="session-note">
-        Satu sesi memuat paling banyak {dailyTarget} kartu mengikuti target
-        harianmu yang tersimpan di perangkat ini: kartu jatuh tempo lebih
-        dulu, lalu kartu baru. Jadwal dihitung dengan algoritma SM-2 dari
-        penilaianmu sendiri.
-      </p>
     </>
   );
 }

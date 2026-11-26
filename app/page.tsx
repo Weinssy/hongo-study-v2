@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { HIRAGANA_CARDS, KATAKANA_CARDS, VOCAB_CARDS } from "@/lib/cards";
+import SakugaHomeCta from "./components/SakugaHomeCta";
 
 export default function HomePage() {
   return (
@@ -36,9 +37,7 @@ export default function HomePage() {
             Sulit, Bisa, atau Gampang; jadwal berikutnya dihitung dengan
             SM-2.
           </p>
-          <Link href="/belajar" className="cta">
-            Mulai sesi belajar
-          </Link>
+          <SakugaHomeCta href="/belajar" label="Mulai sesi belajar" />
         </div>
         <div className="path-item">
           <h3>2. Kuis</h3>
@@ -46,9 +45,7 @@ export default function HomePage() {
             Sepuluh soal pilihan ganda dan ketik romaji. Untuk pengguna yang
             masuk, soal diambil dari kartu yang paling lemah.
           </p>
-          <Link href="/kuis" className="cta">
-            Ikuti kuis 10 soal
-          </Link>
+          <SakugaHomeCta href="/kuis" label="Ikuti kuis 10 soal" variant="secondary" />
         </div>
         <div className="path-item">
           <h3>3. Dashboard</h3>
@@ -57,9 +54,7 @@ export default function HomePage() {
             lencana. Semua dihitung dari ulangan yang benar-benar kamu
             kerjakan.
           </p>
-          <Link href="/dashboard" className="cta">
-            Lihat progres saya
-          </Link>
+          <SakugaHomeCta href="/dashboard" label="Lihat progres saya" variant="secondary" />
         </div>
       </div>
 

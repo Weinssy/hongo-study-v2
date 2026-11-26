@@ -16,6 +16,13 @@ import {
 import { loadProgress, saveQuizResult } from "@/lib/progress-store";
 import { loadLocalQuizHistory, type QuizHistoryEntry } from "@/lib/local-store";
 import { useAuth } from "@/lib/auth";
+import {
+  SakugaButton,
+  SakugaInput,
+  SakugaProgress,
+  SakugaRadio,
+} from "@/app/components/SakugaControls";
+import { showSakugaToast } from "@/app/components/SakugaToastHost";
 
 const QUESTION_COUNT = 10;
 
@@ -105,7 +112,10 @@ export default function KuisClient() {
   function answerMc(choiceIdx: number) {
     if (!current || current.kind !== "mc" || feedback) return;
     const correct = choiceIdx === current.answerIndex;
-    if (correct) setCorrectCount((n) => n + 1);
+    if (correct) {
+      setCorrectCount((n) => n + 1);
+      showSakugaToast("Benar!");
+    }
     setFeedback({
       correct,
       text: correct
@@ -118,7 +128,10 @@ export default function KuisClient() {
     event.preventDefault();
     if (!current || current.kind !== "romaji" || feedback) return;
     const correct = checkRomaji(romajiInput, current.expected);
-    if (correct) setCorrectCount((n) => n + 1);
+    if (correct) {
+      setCorrectCount((n) => n + 1);
+      showSakugaToast("Benar!");
+    }
     setFeedback({
       correct,
       text: correct
@@ -130,6 +143,7 @@ export default function KuisClient() {
   async function nextQuestion() {
     if (index + 1 >= questions.length) {
       setPhase("done");
+      showSakugaToast(`Skor: ${correctCount}/${questions.length}!`);
       if (!savedRef.current) {
         savedRef.current = true;
         const label =
@@ -149,87 +163,108 @@ export default function KuisClient() {
     setRomajiInput("");
   }
 
-  if (phase === "done") {
+  if (phase === "playing" || phase === "done") {
+    const progressValue =
+      questions.length > 0
+        ? phase === "done"
+          ? 1
+          : (index + (feedback ? 1 : 0)) / questions.length
+        : 0;
+
     return (
       <>
-        <h1>Hasil Kuis</h1>
-        <div className="panel">
-          <p>
-            Skor kamu <strong>{correctCount} dari {questions.length}</strong>.
-            Hasil ini tersimpan di riwayat kuis perangkat ini
-            {user ? " dan dikirim ke akunmu" : ""}.
-          </p>
-          <p className="session-actions">
-            <button type="button" className="btn btn-primary" onClick={() => setPhase("setup")}>
-              Atur kuis baru
-            </button>
-            <Link href="/belajar" className="btn btn-ghost">
-              Lanjut sesi belajar
-            </Link>
-          </p>
-        </div>
-      </>
-    );
-  }
+        <h1>{phase === "done" ? "Hasil Kuis" : "Kuis"}</h1>
 
-  if (phase === "playing" && current) {
-    return (
-      <>
-        <h1>Kuis</h1>
-        <p className="lead">
-          Soal {index + 1} dari {questions.length}. Skor sementara: {correctCount} benar.
-        </p>
-        <div className="study-card">
-          <span className="study-card-kind">
-            {current.kind === "mc" ? "Pilihan ganda" : "Ketik romaji-nya"}
-          </span>
-          <span className="study-card-front quiz-prompt">{current.prompt}</span>
-        </div>
+        {phase === "playing" && current ? (
+          <p className="lead">
+            Soal {index + 1} dari {questions.length}. Skor sementara: {correctCount} benar.
+          </p>
+        ) : null}
 
-        {current.kind === "mc" ? (
-          <div className="quiz-choices" role="group" aria-label="Pilihan jawaban">
-            {current.choices.map((choice, i) => (
-              <button
-                key={`${choice}-${i}`}
-                type="button"
-                className="quiz-choice"
-                disabled={feedback !== null}
-                onClick={() => answerMc(i)}
-              >
-                {choice}
-              </button>
-            ))}
+        {questions.length > 0 ? (
+          <div className="sakuga-progress-wrap">
+            <SakugaProgress
+              value={progressValue}
+              label={`Progres kuis: ${phase === "done" ? questions.length : index + 1} dari ${questions.length}`}
+              doneLabel="Selesai ✓"
+            />
           </div>
-        ) : (
-          <form onSubmit={answerRomaji} className="quiz-romaji-form">
-            <div className="field">
-              <label htmlFor="romaji-answer">Romaji untuk kartu di atas</label>
-              <input
-                id="romaji-answer"
-                type="text"
-                autoComplete="off"
-                autoCapitalize="none"
-                value={romajiInput}
-                disabled={feedback !== null}
-                onChange={(e) => setRomajiInput(e.target.value)}
-                placeholder="mis. watashi"
-              />
-            </div>
-            <button type="submit" className="btn btn-primary" disabled={feedback !== null}>
-              Periksa jawaban
-            </button>
-          </form>
-        )}
+        ) : null}
 
-        {feedback ? (
-          <div className="quiz-feedback" role="status">
-            <p className={feedback.correct ? "feedback-correct" : "feedback-wrong"}>
-              {feedback.text}
+        {phase === "done" ? (
+          <div className="panel">
+            <p>
+              Skor kamu <strong>{correctCount} dari {questions.length}</strong>.
+              Hasil ini tersimpan di riwayat kuis perangkat ini
+              {user ? " dan dikirim ke akunmu" : ""}.
             </p>
-            <button type="button" className="btn btn-primary" onClick={() => void nextQuestion()}>
-              {index + 1 >= questions.length ? "Lihat hasil" : "Soal berikutnya"}
-            </button>
+            <div className="session-actions">
+              <SakugaButton onClick={() => setPhase("setup")}>
+                Atur kuis baru
+              </SakugaButton>
+              <Link href="/belajar" className="btn btn-ghost">
+                Lanjut sesi belajar
+              </Link>
+            </div>
           </div>
+        ) : current ? (
+          <>
+            <div className="study-card">
+              <span className="study-card-kind">
+                {current.kind === "mc" ? "Pilihan ganda" : "Ketik romaji-nya"}
+              </span>
+              <span className="study-card-front quiz-prompt">{current.prompt}</span>
+            </div>
+
+            {current.kind === "mc" ? (
+              <div className="quiz-choices" role="group" aria-label="Pilihan jawaban">
+                {current.choices.map((choice, i) => (
+                  <button
+                    key={`${choice}-${i}`}
+                    type="button"
+                    className="quiz-choice"
+                    disabled={feedback !== null}
+                    onClick={() => answerMc(i)}
+                  >
+                    {choice}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <form onSubmit={answerRomaji} className="quiz-romaji-form">
+                <div className="field sakuga-field-wrap">
+                  <label htmlFor="romaji-answer">Romaji untuk kartu di atas</label>
+                  <SakugaInput
+                    id="romaji-answer"
+                    label="Romaji untuk kartu di atas"
+                    value={romajiInput}
+                    disabled={feedback !== null}
+                    onValueChange={setRomajiInput}
+                    placeholder="mis. watashi"
+                  />
+                </div>
+                <div>
+                  <SakugaButton type="submit" disabled={feedback !== null}>
+                    Periksa jawaban
+                  </SakugaButton>
+                </div>
+              </form>
+            )}
+
+            {feedback ? (
+              <div className="quiz-feedback" role="status">
+                <p className={feedback.correct ? "feedback-correct" : "feedback-wrong"}>
+                  {feedback.text}
+                </p>
+                <SakugaButton
+                  variant="secondary"
+                  onClick={() => void nextQuestion()}
+                >
+                  {index + 1 >= questions.length ? "Lihat hasil" : "Soal berikutnya"}
+                </SakugaButton>
+              </div>
+            ) : null}
+          </>
         ) : null}
       </>
     );
@@ -248,18 +283,16 @@ export default function KuisClient() {
       <div className="panel">
         <fieldset className="quiz-fieldset">
           <legend>Mode kuis</legend>
-          {(Object.keys(MODE_LABELS) as QuizMode[]).map((m) => (
-            <label key={m} className="radio-row">
-              <input
-                type="radio"
-                name="quiz-mode"
-                value={m}
-                checked={mode === m}
-                onChange={() => setMode(m)}
-              />
-              {MODE_LABELS[m]}
-            </label>
-          ))}
+          <SakugaRadio
+            label="Mode kuis"
+            name="quiz-mode"
+            value={mode}
+            options={(Object.keys(MODE_LABELS) as QuizMode[]).map((m) => ({
+              value: m,
+              label: MODE_LABELS[m],
+            }))}
+            onChange={(val) => setMode(val as QuizMode)}
+          />
         </fieldset>
 
         {mode !== "kana" ? (
@@ -286,9 +319,11 @@ export default function KuisClient() {
           </p>
         ) : null}
 
-        <button type="button" className="btn btn-primary btn-block" onClick={() => void startQuiz()}>
-          Mulai kuis 10 soal
-        </button>
+        <div className="sakuga-cta-wrap">
+          <SakugaButton onClick={() => void startQuiz()}>
+            Mulai kuis 10 soal
+          </SakugaButton>
+        </div>
       </div>
 
       {history.length > 0 ? (

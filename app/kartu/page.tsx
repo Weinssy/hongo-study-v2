@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { HIRAGANA_CARDS, KATAKANA_CARDS, VOCAB_CARDS } from "@/lib/cards";
 import { THEME_LABELS, THEME_ORDER, type VocabTheme } from "@/data/vocab";
+import KartuTabsClient from "./KartuTabsClient";
 
 export const metadata: Metadata = {
   title: "Daftar Kartu: Hongo Study v2",
@@ -22,15 +23,10 @@ export default async function KartuPage({
   const vocab = activeTheme
     ? VOCAB_CARDS.filter((c) => c.theme === activeTheme)
     : VOCAB_CARDS;
+  const kanaCount = HIRAGANA_CARDS.length + KATAKANA_CARDS.length;
 
-  return (
+  const kanaSection = (
     <>
-      <h1>Daftar Kartu</h1>
-      <p className="lead">
-        Mode tamu: semua kartu bisa dilihat tanpa login. Kosakata bisa
-        disaring per tema; kana selalu tampil lengkap.
-      </p>
-
       <h2>Hiragana ({HIRAGANA_CARDS.length})</h2>
       <div className="kana-grid">
         {HIRAGANA_CARDS.map((c) => (
@@ -50,7 +46,11 @@ export default async function KartuPage({
           </div>
         ))}
       </div>
+    </>
+  );
 
+  const vocabSection = (
+    <>
       <h2>
         Kosakata JLPT N5 ({vocab.length}
         {activeTheme ? ` dari ${VOCAB_CARDS.length}` : ""})
@@ -86,6 +86,25 @@ export default async function KartuPage({
           </div>
         ))}
       </div>
+    </>
+  );
+
+  return (
+    <>
+      <h1>Daftar Kartu</h1>
+      <p className="lead">
+        Mode tamu: semua kartu bisa dilihat tanpa login. Kosakata bisa
+        disaring per tema; kana selalu tampil lengkap.
+      </p>
+
+      <KartuTabsClient
+        totalCount={kanaCount + vocab.length}
+        kanaCount={kanaCount}
+        vocabCount={vocab.length}
+        initialTab={activeTheme ? "kosakata" : "semua"}
+        kanaSection={kanaSection}
+        vocabSection={vocabSection}
+      />
     </>
   );
 }
