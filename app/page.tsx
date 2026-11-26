@@ -7,16 +7,16 @@ export default function HomePage() {
 
   return (
     <>
-      <section className="home-stage">
+      <section className="home-stage aura-surface">
         <div className="home-opening">
-          <div className="home-opening-copy">
+          <div className="home-opening-copy aura-copy">
             <h1>Belajar huruf dan kosakata Jepang sampai hafal.</h1>
             <p className="home-opening-lead">
               Empat puluh enam hiragana, 46 katakana, dan 100 kosakata JLPT N5
               dengan jadwal ulangan SM-2 agar kamu mengulang tepat sebelum lupa.
             </p>
             <div className="home-opening-actions">
-              <Link href="/belajar" className="btn btn-primary">
+              <Link href="/belajar" className="btn btn-aura">
                 Mulai sesi belajar
               </Link>
               <Link href="/kartu" className="text-action-link">

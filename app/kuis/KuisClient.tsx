@@ -168,17 +168,21 @@ export default function KuisClient() {
         : 0;
 
     return (
-      <div className="page-shell">
-        <div className="workspace-header">
-          <h1>{phase === "done" ? "Hasil Kuis" : "Kuis"}</h1>
+      <>
+        <section className="workspace-aura aura-surface">
+          <div className="workspace-aura-inner">
+            <h1>{phase === "done" ? "Hasil Kuis" : "Kuis"}</h1>
 
-          {phase === "playing" && current ? (
-            <p className="page-lead num-tabular">
-              Soal {index + 1} dari {questions.length}. Skor sementara:{" "}
-              {correctCount} benar.
-            </p>
-          ) : null}
-        </div>
+            {phase === "playing" && current ? (
+              <p className="page-lead num-tabular">
+                Soal {index + 1} dari {questions.length}. Skor sementara:{" "}
+                {correctCount} benar.
+              </p>
+            ) : null}
+          </div>
+        </section>
+
+        <div className="page-shell">
 
         {questions.length > 0 ? (
           <StudioProgress
@@ -305,21 +309,26 @@ export default function KuisClient() {
             ) : null}
           </div>
         ) : null}
-      </div>
+        </div>
+      </>
     );
   }
 
   return (
-    <div className="page-shell">
-      <div className="workspace-header">
-        <h1>Kuis</h1>
-        <p className="page-lead">
-          Sepuluh soal bergantian pilihan ganda dan ketik romaji.
-          {user
-            ? " Karena kamu masuk, soal diambil dari kartu yang paling lemah menurut data SRS-mu."
-            : " Sebagai tamu, soal dipilih acak. Masuk agar soal menyesuaikan kartu yang paling lemah menurut data SRS-mu."}
-        </p>
-      </div>
+    <>
+      <section className="workspace-aura aura-surface">
+        <div className="workspace-aura-inner">
+          <h1>Kuis</h1>
+          <p className="page-lead">
+            Sepuluh soal bergantian pilihan ganda dan ketik romaji.
+            {user
+              ? " Karena kamu masuk, soal diambil dari kartu yang paling lemah menurut data SRS-mu."
+              : " Sebagai tamu, soal dipilih acak. Masuk agar soal menyesuaikan kartu yang paling lemah menurut data SRS-mu."}
+          </p>
+        </div>
+      </section>
+
+      <div className="page-shell">
 
       <div className="panel stack-form">
         <fieldset className="quiz-fieldset">
@@ -388,6 +397,7 @@ export default function KuisClient() {
           </ul>
         </section>
       ) : null}
-    </div>
+      </div>
+    </>
   );
 }

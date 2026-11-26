@@ -69,36 +69,40 @@ export default function DashboardClient() {
 
   if (phase === "loading") {
     return (
-      <div className="page-shell">
-        <div className="workspace-header">
+      <section className="workspace-aura aura-surface">
+        <div className="workspace-aura-inner">
           <h1>Dashboard Progres</h1>
           <p className="page-lead">Memuat progres belajarmu…</p>
         </div>
-      </div>
+      </section>
     );
   }
 
   if (phase === "error") {
     return (
-      <div className="page-shell">
-        <div className="workspace-header">
-          <h1>Dashboard Progres</h1>
-        </div>
-        <div className="panel">
-          <p className="form-error" role="alert">
-            {errorMsg}
-          </p>
-          <div className="session-actions">
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => void load()}
-            >
-              Coba lagi
-            </button>
+      <>
+        <section className="workspace-aura aura-surface">
+          <div className="workspace-aura-inner">
+            <h1>Dashboard Progres</h1>
+          </div>
+        </section>
+        <div className="page-shell">
+          <div className="panel">
+            <p className="form-error" role="alert">
+              {errorMsg}
+            </p>
+            <div className="session-actions">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => void load()}
+              >
+                Coba lagi
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -122,15 +126,19 @@ export default function DashboardClient() {
   const isEmpty = reviewed === 0 && totalReviews === 0 && quizSessions === 0;
 
   return (
-    <div className="page-shell">
-      <div className="workspace-header">
-        <h1>Dashboard Progres</h1>
-        <p className="page-lead">
-          {user
-            ? "Progres akunmu, dihitung dari ulangan yang tercatat."
-            : "Progres mode tamu di perangkat ini. Masuk agar progres tersimpan ke akun."}
-        </p>
-      </div>
+    <>
+      <section className="workspace-aura aura-surface">
+        <div className="workspace-aura-inner">
+          <h1>Dashboard Progres</h1>
+          <p className="page-lead">
+            {user
+              ? "Progres akunmu, dihitung dari ulangan yang tercatat."
+              : "Progres mode tamu di perangkat ini. Masuk agar progres tersimpan ke akun."}
+          </p>
+        </div>
+      </section>
+
+      <div className="page-shell">
 
       <div className="dashboard-grid">
         {isEmpty ? (
@@ -304,6 +312,7 @@ export default function DashboardClient() {
           </section>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }

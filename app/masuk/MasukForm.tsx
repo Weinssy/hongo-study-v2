@@ -21,22 +21,30 @@ export default function MasukForm() {
 
   if (!supabaseReady) {
     return (
-      <div className="page-shell">
-        <div className="panel auth-panel">
-          <h1>Login belum aktif</h1>
-          <p className="page-lead">
-            Project Supabase belum terhubung ke situs ini (kunci akses belum
-            dipasang), jadi pendaftaran dan login belum bisa dipakai. Mode tamu
-            tetap jalan penuh: semua kartu bisa dilihat dan sesi belajar
-            tersimpan di perangkat ini.
-          </p>
-          <div className="session-actions">
-            <Link href="/belajar" className="btn btn-primary">
-              Buka sesi belajar sebagai tamu
-            </Link>
+      <>
+        <section className="workspace-aura aura-surface">
+          <div className="workspace-aura-inner">
+            <h1>Login belum aktif</h1>
+            <p className="page-lead">
+              Project Supabase belum terhubung ke situs ini (kunci akses belum
+              dipasang), jadi pendaftaran dan login belum bisa dipakai.
+            </p>
+          </div>
+        </section>
+        <div className="page-shell">
+          <div className="panel auth-panel">
+            <p>
+              Mode tamu tetap jalan penuh: semua kartu bisa dilihat dan sesi
+              belajar tersimpan di perangkat ini.
+            </p>
+            <div className="session-actions">
+              <Link href="/belajar" className="btn btn-primary">
+                Buka sesi belajar sebagai tamu
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -78,16 +86,21 @@ export default function MasukForm() {
   }
 
   return (
-    <div className="page-shell">
-      <div className="panel auth-panel">
-        <h1>{mode === "masuk" ? "Masuk" : "Daftar akun"}</h1>
-        <p className="page-lead">
-          {mode === "masuk"
-            ? "Masuk supaya progres belajarmu tersimpan ke akun dan bisa dibuka dari perangkat lain."
-            : "Akun dipakai untuk menyimpan progres SRS per kartu. Tanpa akun pun kamu tetap bisa belajar sebagai tamu."}
-        </p>
+    <>
+      <section className="workspace-aura aura-surface">
+        <div className="workspace-aura-inner">
+          <h1>{mode === "masuk" ? "Masuk" : "Daftar akun"}</h1>
+          <p className="page-lead">
+            {mode === "masuk"
+              ? "Masuk supaya progres belajarmu tersimpan ke akun dan bisa dibuka dari perangkat lain."
+              : "Akun dipakai untuk menyimpan progres SRS per kartu. Tanpa akun pun kamu tetap bisa belajar sebagai tamu."}
+          </p>
+        </div>
+      </section>
 
-        <div className="mode-switch" role="group" aria-label="Pilih mode autentikasi">
+      <div className="page-shell">
+        <div className="panel auth-panel">
+          <div className="mode-switch" role="group" aria-label="Pilih mode autentikasi">
           <button
             type="button"
             className={mode === "masuk" ? "mode-btn active" : "mode-btn"}
@@ -196,7 +209,8 @@ export default function MasukForm() {
             {busy ? "Memproses…" : mode === "masuk" ? "Masuk dan lanjut belajar" : "Buat akun"}
           </button>
         </form>
+        </div>
       </div>
-    </div>
+    </>
   );
 }

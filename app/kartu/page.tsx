@@ -24,25 +24,29 @@ export default async function KartuPage({
     : VOCAB_CARDS;
 
   return (
-    <div className="page-shell">
-      <div className="workspace-header">
-        <h1>Daftar Kartu</h1>
-        <p className="page-lead">
-          Mode tamu: semua kartu terbuka tanpa login. Saring kosakata menurut
-          tema atau cari langsung berdasarkan kana, kanji, romaji, dan arti.
-        </p>
-      </div>
+    <>
+      <section className="workspace-aura aura-surface">
+        <div className="workspace-aura-inner">
+          <h1>Daftar Kartu</h1>
+          <p className="page-lead">
+            Mode tamu: semua kartu terbuka tanpa login. Saring kosakata menurut
+            tema atau cari langsung berdasarkan kana, kanji, romaji, dan arti.
+          </p>
+        </div>
+      </section>
 
-      <KartuTabsClient
-        hiragana={HIRAGANA_CARDS}
-        katakana={KATAKANA_CARDS}
-        vocab={vocab}
-        totalVocabCount={VOCAB_CARDS.length}
-        activeTheme={activeTheme}
-        themeOrder={THEME_ORDER}
-        themeLabels={THEME_LABELS}
-        initialTab={activeTheme ? "kosakata" : "semua"}
-      />
-    </div>
+      <div className="page-shell">
+        <KartuTabsClient
+          hiragana={HIRAGANA_CARDS}
+          katakana={KATAKANA_CARDS}
+          vocab={vocab}
+          totalVocabCount={VOCAB_CARDS.length}
+          activeTheme={activeTheme}
+          themeOrder={THEME_ORDER}
+          themeLabels={THEME_LABELS}
+          initialTab={activeTheme ? "kosakata" : "semua"}
+        />
+      </div>
+    </>
   );
 }

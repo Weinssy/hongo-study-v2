@@ -164,6 +164,7 @@
 
 html {
   background: var(--bg-page);
+  scroll-padding-top: 5.5rem;
 }
 
 body {
@@ -313,20 +314,73 @@ a:hover {
 
 /* Header & Responsive Native Popover Nav */
 .site-header {
-  position: sticky;
+  position: fixed;
   inset-block-start: 0;
+  inset-inline: 0;
   z-index: 50;
   inline-size: 100%;
   min-inline-size: 0;
   overflow-x: clip;
   border-block-end: 1px solid transparent;
-  background: color-mix(in oklab, var(--bg-page) 92%, transparent);
-  transition: border-color 180ms var(--ease-studio), background-color 180ms var(--ease-studio);
+  background: transparent;
+  color: #f4f3ee;
+  transition: border-color 180ms var(--ease-studio), background-color 180ms var(--ease-studio), color 180ms var(--ease-studio);
+}
+
+.site-header:not(.is-scrolled) .brand-link,
+.site-header:not(.is-scrolled) .brand-ver,
+.site-header:not(.is-scrolled) .account-email,
+.site-header:not(.is-scrolled) .account-note {
+  color: #f4f3ee;
+}
+
+.site-header:not(.is-scrolled) .brand-ver,
+.site-header:not(.is-scrolled) .account-email,
+.site-header:not(.is-scrolled) .account-note {
+  color: #d3d9e6;
+}
+
+.site-header.is-wide:not(.is-scrolled) .nav-link {
+  color: #f4f3ee;
+}
+
+.site-header.is-wide:not(.is-scrolled) .nav-link:hover {
+  background: rgb(244 243 238 / 0.12);
+  color: #ffffff;
+}
+
+.site-header.is-wide:not(.is-scrolled) .nav-link[aria-current="page"] {
+  color: #ffffff;
+}
+
+.site-header.is-wide:not(.is-scrolled) .nav-link[aria-current="page"]::after {
+  border-block-end-color: #f06452;
+}
+
+.site-header:not(.is-scrolled) .theme-toggle,
+.site-header:not(.is-scrolled) .menu-button,
+.site-header:not(.is-scrolled) .header-account-inline .btn-ghost {
+  background: rgb(6 11 26 / 0.45);
+  border-color: rgb(244 243 238 / 0.34);
+  color: #f4f3ee;
+}
+
+.site-header:not(.is-scrolled) .theme-toggle:hover,
+.site-header:not(.is-scrolled) .menu-button:hover,
+.site-header:not(.is-scrolled) .header-account-inline .btn-ghost:hover {
+  background: rgb(18 40 94 / 0.65);
+  border-color: #f4f3ee;
+  color: #ffffff;
+}
+
+.site-header:not(.is-scrolled) :where(a[href], button):focus-visible {
+  outline-color: #9dc0ff;
 }
 
 .site-header.is-scrolled {
   border-block-end-color: var(--border);
-  background: var(--bg-page);
+  background: color-mix(in oklab, var(--bg-page) 95%, transparent);
+  color: var(--ink);
 }
 
 .header-inner {
@@ -666,15 +720,141 @@ a:hover {
   inline-size: 100%;
 }
 
-/* Main Layout Container */
+/* Main Layout Container & Vanta-inspired Aura Grainy Atmosphere */
 .site-main {
   inline-size: 100%;
+  background: linear-gradient(180deg, color-mix(in oklab, var(--bg-subtle) 55%, var(--bg-page)) 0, var(--bg-page) 220px);
+}
+
+.aura-surface {
+  position: relative;
+  overflow: clip;
+  background-color: #060b1a;
+  background-image:
+    radial-gradient(62% 78% at 92% 14%, #e25a34 0%, #c84220 26%, rgb(200 66 32 / 0) 64%),
+    radial-gradient(58% 66% at 80% 48%, rgb(222 228 240 / 0.72) 0%, rgb(168 194 235 / 0.34) 36%, rgb(20 78 176 / 0) 72%),
+    radial-gradient(88% 92% at 68% 72%, #1a60d0 0%, #10429c 36%, rgb(10 26 70 / 0) 75%),
+    linear-gradient(118deg, #050916 0%, #091432 42%, #0e2f78 76%, #13489e 100%);
+  color: #f4f3ee;
+}
+
+.aura-surface::before {
+  content: "";
+  position: absolute;
+  inset: -12%;
+  pointer-events: none;
+  background:
+    radial-gradient(45% 50% at 88% 22%, rgb(240 100 82 / 0.28) 0%, transparent 70%),
+    radial-gradient(55% 60% at 62% 68%, rgb(38 118 240 / 0.22) 0%, transparent 72%);
+  will-change: transform;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports ((animation-timeline: scroll()) and (animation-range: 0% 100%)) {
+    @keyframes aura-drift {
+      from {
+        transform: translate3d(0, 0, 0) scale(1);
+      }
+      to {
+        transform: translate3d(-3%, 4%, 0) scale(1.05);
+      }
+    }
+
+    .aura-surface::before {
+      animation: aura-drift linear both;
+      animation-timeline: scroll(block root);
+      animation-range: 0px 600px;
+    }
+  }
+}
+
+.aura-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.26;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 200px 200px;
+}
+
+.aura-surface > * {
+  position: relative;
+  z-index: 1;
+}
+
+.aura-copy h1,
+.workspace-aura-inner h1 {
+  color: #f4f3ee;
+}
+
+.aura-copy .home-opening-lead,
+.workspace-aura-inner .page-lead {
+  color: #d3d9e6;
+}
+
+.aura-copy .text-action-link,
+.workspace-aura-inner a:not(.btn) {
+  color: #f4f3ee;
+}
+
+.aura-copy .text-action-link:hover,
+.workspace-aura-inner a:not(.btn):hover {
+  color: #ffffff;
+}
+
+.aura-surface :where(a[href], button):focus-visible {
+  outline-color: #9dc0ff;
+}
+
+.btn-aura {
+  background: #f4f3ee;
+  border-color: #f4f3ee;
+  color: #0a1530;
+}
+
+.btn-aura:hover:not(:disabled) {
+  background: #ffffff;
+  border-color: #ffffff;
+  color: #060b1a;
+}
+
+.workspace-aura {
+  border-block-end: 1px solid var(--border);
+  padding-block-start: 4.5rem;
+}
+
+.workspace-aura-inner {
+  max-inline-size: 1180px;
+  margin-inline: auto;
+  padding: clamp(1.5rem, 1rem + 1.8vw, 2.5rem) 1.25rem clamp(1.75rem, 1.2rem + 2vw, 2.75rem);
+}
+
+.workspace-aura .help-btn {
+  background: rgb(6 11 26 / 0.55);
+  border-color: rgb(244 243 238 / 0.38);
+  color: #f4f3ee;
+}
+
+.workspace-aura .help-btn:hover,
+.workspace-aura .help-btn[aria-expanded="true"] {
+  background: rgb(18 40 94 / 0.78);
+  border-color: #9dc0ff;
+  color: #ffffff;
+}
+
+.workspace-aura .help-drawer {
+  background: #0d1630;
+  border-color: rgb(157 192 255 / 0.35);
+  color: #f4f3ee;
 }
 
 .page-shell {
   max-inline-size: 1180px;
   margin-inline: auto;
-  padding: clamp(1.5rem, 1rem + 2vw, 3rem) 1.25rem 4.5rem;
+  padding: clamp(1.5rem, 1rem + 2vw, 2.75rem) 1.25rem 4.5rem;
 }
 
 .workspace-header {
@@ -693,13 +873,13 @@ a:hover {
 /* Home Page (RHYTHM 3: varied opening, full-bleed ledger, split workflow, closing sheet) */
 .home-stage {
   border-block-end: 1px solid var(--border);
-  background: linear-gradient(180deg, var(--bg-subtle) 0%, var(--bg-page) 68%);
+  padding-block-start: 4.5rem;
 }
 
 .home-opening {
   max-inline-size: 1180px;
   margin-inline: auto;
-  padding: clamp(2rem, 1.2rem + 3.5vw, 4.75rem) 1.25rem clamp(2.25rem, 1.5rem + 3vw, 4rem);
+  padding: clamp(2rem, 1.2rem + 3vw, 4.25rem) 1.25rem clamp(2.5rem, 1.5rem + 3vw, 4.25rem);
   display: grid;
   gap: 2.25rem;
   align-items: center;
@@ -743,12 +923,25 @@ a:hover {
 /* Interactive specimen card on Home */
 .specimen-stage {
   background: var(--bg-surface);
+  color: var(--ink);
   border: 1px solid var(--border-strong);
   border-radius: var(--radius-panel);
   padding: 1.35rem;
-  box-shadow: var(--shadow-focus);
+  box-shadow: 0 22px 48px -14px rgb(4 8 20 / 0.55);
   display: grid;
   gap: 1rem;
+}
+
+.specimen-stage a {
+  color: var(--indigo);
+}
+
+.specimen-stage a:hover {
+  color: var(--accent);
+}
+
+.specimen-stage :where(a[href], button):focus-visible {
+  outline-color: var(--indigo);
 }
 
 .specimen-bar {
@@ -1190,8 +1383,11 @@ a:hover {
   color: var(--indigo);
 }
 
+.help-drawer-row {
+  flex: 0 0 100%;
+}
+
 .help-drawer {
-  flex: 1 0 100%;
   padding: 0.85rem 1rem;
   border: 1px solid var(--border);
   border-radius: var(--radius-control);
@@ -1855,6 +2051,9 @@ a:hover {
 .article-section {
   display: grid;
   gap: 0.65rem;
+}
+
+.article-section + .article-section {
   padding-block-start: 1.25rem;
   border-block-start: 1px solid var(--border);
 }

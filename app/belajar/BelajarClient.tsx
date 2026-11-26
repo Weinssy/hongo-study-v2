@@ -128,66 +128,76 @@ export default function BelajarClient() {
 
   if (phase === "loading") {
     return (
-      <div className="page-shell">
-        <div className="workspace-header">
-          <h1>Sesi Belajar</h1>
-          <p className="page-lead">Menyiapkan kartu yang jatuh tempo…</p>
-        </div>
-      </div>
+      <>
+        <section className="workspace-aura aura-surface">
+          <div className="workspace-aura-inner">
+            <h1>Sesi Belajar</h1>
+            <p className="page-lead">Menyiapkan kartu yang jatuh tempo…</p>
+          </div>
+        </section>
+      </>
     );
   }
 
   if (phase === "error") {
     return (
-      <div className="page-shell">
-        <div className="workspace-header">
-          <h1>Sesi Belajar</h1>
-        </div>
-        <div className="panel">
-          <p className="form-error" role="alert">
-            {errorMsg}
-          </p>
-          <div className="session-actions">
-            <button
-              type="button"
-              className="btn btn-primary"
-              onClick={() => void startSession()}
-            >
-              Coba lagi
-            </button>
+      <>
+        <section className="workspace-aura aura-surface">
+          <div className="workspace-aura-inner">
+            <h1>Sesi Belajar</h1>
+          </div>
+        </section>
+        <div className="page-shell">
+          <div className="panel">
+            <p className="form-error" role="alert">
+              {errorMsg}
+            </p>
+            <div className="session-actions">
+              <button
+                type="button"
+                className="btn btn-primary"
+                onClick={() => void startSession()}
+              >
+                Coba lagi
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (phase === "empty") {
     return (
-      <div className="page-shell">
-        <div className="workspace-header">
-          <h1>Sesi Belajar</h1>
-        </div>
-        <div className="panel">
-          <p>
-            Tidak ada kartu yang jatuh tempo hari ini, dan semua kartu sudah
-            pernah dipelajari.
-            {nextDue ? (
-              <>
-                {" "}
-                Kartu berikutnya jatuh tempo pada <strong className="num-tabular">{nextDue}</strong>.
-              </>
-            ) : null}
-          </p>
-          <div className="session-actions">
-            <Link href="/kartu" className="btn btn-primary">
-              Lihat daftar kartu lengkap
-            </Link>
-            <Link href="/kuis" className="btn">
-              Latihan lewat kuis
-            </Link>
+      <>
+        <section className="workspace-aura aura-surface">
+          <div className="workspace-aura-inner">
+            <h1>Sesi Belajar</h1>
+          </div>
+        </section>
+        <div className="page-shell">
+          <div className="panel">
+            <p>
+              Tidak ada kartu yang jatuh tempo hari ini, dan semua kartu sudah
+              pernah dipelajari.
+              {nextDue ? (
+                <>
+                  {" "}
+                  Kartu berikutnya jatuh tempo pada <strong className="num-tabular">{nextDue}</strong>.
+                </>
+              ) : null}
+            </p>
+            <div className="session-actions">
+              <Link href="/kartu" className="btn btn-primary">
+                Lihat daftar kartu lengkap
+              </Link>
+              <Link href="/kuis" className="btn">
+                Latihan lewat kuis
+              </Link>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
@@ -195,24 +205,28 @@ export default function BelajarClient() {
     queue.length > 0 ? (phase === "done" ? 1 : reviewed / queue.length) : 0;
 
   return (
-    <div className="page-shell">
-      <div className="workspace-header">
-        <div className="heading-with-help">
-          <h1>{phase === "done" ? "Sesi selesai" : "Sesi Belajar"}</h1>
-          <StudioHelpDisclosure
-            label="Cara kerja jadwal SM-2"
-            text="Penilaianmu mengatur jadwal muncul kartu lewat SM-2 tepat sebelum lupa. Nilai Lupa mengulang besok, sedangkan Bisa dan Gampang memperpanjang jarak hari."
-          />
-        </div>
+    <>
+      <section className="workspace-aura aura-surface">
+        <div className="workspace-aura-inner">
+          <div className="heading-with-help">
+            <h1>{phase === "done" ? "Sesi selesai" : "Sesi Belajar"}</h1>
+            <StudioHelpDisclosure
+              label="Cara kerja jadwal SM-2"
+              text="Penilaianmu mengatur jadwal muncul kartu lewat SM-2 tepat sebelum lupa. Nilai Lupa mengulang besok, sedangkan Bisa dan Gampang memperpanjang jarak hari."
+            />
+          </div>
 
-        {phase === "studying" ? (
-          <p className="page-lead">
-            {user
-              ? "Kamu masuk sebagai pengguna terdaftar: progres sesi ini tersimpan ke akunmu."
-              : "Mode tamu: progres sesi ini tersimpan di perangkat ini. Masuk agar progresmu tersimpan ke akun."}
-          </p>
-        ) : null}
-      </div>
+          {phase === "studying" ? (
+            <p className="page-lead">
+              {user
+                ? "Kamu masuk sebagai pengguna terdaftar: progres sesi ini tersimpan ke akunmu."
+                : "Mode tamu: progres sesi ini tersimpan di perangkat ini. Masuk agar progresmu tersimpan ke akun."}
+            </p>
+          ) : null}
+        </div>
+      </section>
+
+      <div className="page-shell">
 
       {queue.length > 0 ? (
         <StudioProgress
@@ -321,6 +335,7 @@ export default function BelajarClient() {
           </p>
         </div>
       ) : null}
-    </div>
+      </div>
+    </>
   );
 }

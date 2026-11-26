@@ -149,8 +149,10 @@ export function StudioHelpDisclosure({
         <span>{label}</span>
       </button>
       {open ? (
-        <div id={panelId} className="help-drawer">
-          {text}
+        <div className="help-drawer-row">
+          <div id={panelId} className="help-drawer">
+            {text}
+          </div>
         </div>
       ) : null}
     </div>
